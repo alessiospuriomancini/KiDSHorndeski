@@ -1,0 +1,105 @@
+#######################################################################
+# Data and precision parameters for the KiDS-450 shear power spectrum #
+# likelihood for data measured with a quadratic estimator as given in #
+# Koehlinger et al. 2017 (MNRAS; arXiv:1706.02892)                    #
+# Data available at: http://kids.strw.leidenuniv.nl/sciencedata.php   #
+#######################################################################
+
+# set path correctly in "default.conf" or supply root path here:
+#MGfast.data_directory = '/your/path/to/data_for_likelihood/'
+MGfast.data_directory = '/home/alessio/datainput'
+#MGfast.data_directory = '/home/alessio/datamodified'
+
+MGfast.halofit_tol_sigma = 1e-9
+
+# Alessio
+MGfast.nzbins_background = 4
+MGfast.nzbins_foreground = 2
+
+# choose photo-z calibration method:
+default: 'Nz_DIR'
+MGfast.photoz_method = 'Nz_DIR'
+
+# k_max in h/Mpc (i.e. l_max/D_M(z_min):
+# default: k_max = 50 h/Mpc
+MGfast.k_max_h_by_Mpc = 50.
+
+# this is now exactly the number of entries in the n(z)-file (.hist):
+# default: 70
+MGfast.nzmax_hist_background = 70
+
+# Alessio: number of entries in n(z) file for GAMA
+# For now, choose the biggest between the two
+# TODO: specify both of them
+MGfast.nzmax_hist_foreground = 17
+
+# FK: new nzmax values for integrations:
+# inner and outer grids in z always between zmin and zmax of cosmic shear
+# cosmic shear (aka matter matter --> mm)
+MGfast.nzmax_mm_in = 70
+MGfast.nzmax_mm_out = 37
+# galaxy-galaxy lensing (aka galaxy matter --> gm)
+MGfast.nzmax_gm_in = 70
+MGfast.nzmax_gm_out = 47
+# clustering (aka galaxy galaxy --> gg)
+MGfast.nzmax_gg = [17, 30]
+
+MGfast.type_interp_nz = 'quadratic'
+
+# Nonlinear corrections, any CLASS key word is possible but the default choices are
+# 'halofit' (including Takahashi's update) or 'hmcode' (Mead et al. 2015, 2016)
+# the choice between the two affects the choice of baryon feedback parameters below!
+#MGfast.method_non_linear_Pk = 'halofit'
+MGfast.method_non_linear_Pk = 'hmcode'
+
+### Alessio
+### Supply vector of band powers not only for cosmic shear only, but also in the case of GM and GG
+
+# supply binary vector of which band powers (per z-correlation) should be used in likelihood estimation (0 --> don't use it, 1 --> use it)
+# example: 7 bands in total, don't use first and last band (in each z-correlation): [0, 1, 1, 1, 1, 1, 0]
+# set all to zero if you want to exclude a probe!
+# cosmic shear:
+MGfast.bands_EE_to_use_MM = [1, 1, 1, 1, 1]
+#MGfast.bands_EE_to_use_MM = [0, 0, 0, 0, 0]
+# galaxy-galaxy lensing:
+#MGfast.bands_EE_to_use_GM = [1, 1, 1, 1, 1]
+MGfast.bands_EE_to_use_GM = [0, 0, 0, 0, 0]
+# galaxy clustering:
+#MGfast.bands_EE_to_use_GG = [1, 1, 1, 1, 1]
+MGfast.bands_EE_to_use_GG = [0, 0, 0, 0, 0]
+
+# if you want to use quad for GG integration:
+MGfast.use_quad_for_GG = False
+
+### Nuisance parameters ###
+
+### BARYON FEEDBACK ###
+## HALOFIT: ##
+# the options below are only valid if 'method_non_linear_Pk' = 'halofit'!
+# choose a baryonic feedback model (from OWLS): 'REF', 'AGN', 'DBLIM'
+MGfast.baryon_model = 'AGN'
+# this allows to marginalize over a free baryon feedback amplitude A_bary:
+# (i.e. it is simply modifying the amplitude set by the chosen model)
+#MGfast.use_nuisance = ['A_bary']
+#
+### HMCode: ###
+# the options below are only valid if 'method_non_linear_Pk' = 'hmcode'!
+# in order to marginalize over the baryon feedback parameters in HMcode define:
+# 1) either 'c_min' only or 'eta_0' only as 'cosmo' parameter in your param-file
+#    (the other value will be inferred and fixed)
+# 2) or 'c_min' and 'eta_0' as 'cosmo' parameter in your param-file
+
+# this allows to include IA:
+# if only 'amp_IA' is passed, 'exp_IA' = 0 (i.e. redshift-scaling is turned off!)
+# default: only 'A_IA' added to list (i.e. exp_IA = 0)
+#MGfast.use_nuisance = ['A_IA', 'exp_IA']
+#MGfast.use_nuisance = ['A_IA']
+
+# linear galaxy clustering bias used in GM and GG calculations per z-bin of
+# foreground sample:
+#MGfast.use_nuisance = ['screening_scale', 'bias_z1', 'bias_z2']
+
+# if more than one nuisance parameter --> make a list:
+#MGfast.use_nuisance = ['nonlinear_scales_nuisance', 'screening_scale','A_IA', 'bias_z1', 'bias_z2']
+# if GM and GG are set to 0:
+MGfast.use_nuisance = ['nonlinear_scales_nuisance','screening_scale', 'A_IA']
